@@ -4,6 +4,7 @@
 #include <stdio.h> 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "pager.h"
 
 #define size_of_attribute(Struct, Attribute) sizeof(((Struct*)0)->Attribute)
@@ -37,6 +38,13 @@ typedef struct {
     Row row_to_insert;
 } Statement;
 
+typedef struct {
+    Table *table;
+    uint32_t row_num;
+    bool end_of_table;
+} Cursor;
+
+
 
 
 void print_row(Row *row);
@@ -44,7 +52,11 @@ void serialize_row(Row *source, void *destination);
 void deserialize_row(void *source, Row *destination);
 
 
-void *row_slot(Table *table, uint32_t row_num);
+void* cursor_value(Cursor *cursor);
+void cursor_advance(Cursor *cursor);
+Cursor* table_start(Table *table);
+Cursor* table_end(Table *table);
+
 void *get_page(Pager* pager, uint32_t page_num);
 
 MetaCommandResult do_meta_command(char *command, Table *table);
