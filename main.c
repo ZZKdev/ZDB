@@ -4,17 +4,22 @@
 #include <readline/readline.h>
 #include "parse.h"
 
-int main(void)
+int main(int argc, char *argv[])
 {
+    if(argc != 2)
+    {
+        printf("Must supply a database filename.\n");
+        exit(EXIT_FAILURE);
+    }
     char *inputBuffer = NULL;
-    Table *table = new_table();
+    Table *table = db_open(argv[1]);
     while(1)
     {
         inputBuffer = readline("> ");
         if(inputBuffer == NULL) continue;
         if('.' == inputBuffer[0]) 
         {
-            switch(do_meta_command(inputBuffer))
+            switch(do_meta_command(inputBuffer, table))
             {
                 case META_COMMAND_OK:
                     break;
@@ -37,6 +42,14 @@ int main(void)
                 continue;
             case PREPARE_SYNTAX_ERROR:
                 printf("Syntax error. !\n");
+                free(inputBuffer);
+                continue;
+            case PREPARE_NEGATIVE_ID:
+                printf("ID must be positive.\n");
+                free(inputBuffer);
+                continue;
+            case PREPARE_STRING_TOO_LONG:
+                printf("String is too long.\n");
                 free(inputBuffer);
                 continue;
         }
